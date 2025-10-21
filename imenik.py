@@ -4,9 +4,9 @@ import os
 
 class Kontakt:
     def __init__(self, ime, email, telefon):
-        self.ime=ime
-        self.email=email
-        self.telefon=telefon
+        self.ime = ime  # 3 I VIŠE ZNAKA
+        self.email = email  
+        self.telefon = telefon  # 9,10 ZNAKOVA 
 
     def __str__(self):
         return f"{self.ime} - {self.email} - {self.telefon}"
@@ -14,11 +14,10 @@ class Kontakt:
 
 class ImenikApp:
     def __init__(self, root):
-        self.root=root
+        self.root = root
         self.root.title("Jednostavni digitalni imenik")
-        self.kontakti=[]
+        self.kontakti = []
 
-        
         frame_unos = tk.Frame(root, padx=10, pady=10)
         frame_unos.grid(row=0, column=0, sticky="ew")
 
@@ -36,7 +35,6 @@ class ImenikApp:
 
         tk.Button(frame_unos, text="Dodaj kontakt", command=self.dodaj_kontakt).grid(row=3, column=0, columnspan=2, pady=5)
 
-        
         frame_lista = tk.Frame(root, padx=10, pady=10)
         frame_lista.grid(row=1, column=0, sticky="nsew")
 
@@ -47,7 +45,6 @@ class ImenikApp:
         self.listbox.grid(row=0, column=0, sticky="nsew")
         self.scrollbar.grid(row=0, column=1, sticky="ns")
 
-        
         frame_gumbi = tk.Frame(root, padx=10, pady=10)
         frame_gumbi.grid(row=2, column=0, sticky="ew")
 
@@ -55,23 +52,36 @@ class ImenikApp:
         tk.Button(frame_gumbi, text="Učitaj kontakte", command=self.ucitaj_kontakte).grid(row=0, column=1, padx=5)
         tk.Button(frame_gumbi, text="Obriši kontakt", command=self.obrisi_kontakt).grid(row=0, column=2, padx=5)
 
-       
         root.rowconfigure(1, weight=1)
         root.columnconfigure(0, weight=1)
         frame_lista.rowconfigure(0, weight=1)
         frame_lista.columnconfigure(0, weight=1)
 
-        
         self.ucitaj_kontakte()
 
-  
     def dodaj_kontakt(self):
-        ime=self.entry_ime.get().strip()
-        email=self.entry_email.get().strip()
-        telefon=self.entry_telefon.get().strip()
+        ime = self.entry_ime.get().strip()
+        email = self.entry_email.get().strip()
+        telefon = self.entry_telefon.get().strip()
 
-        if not ime or not email or not telefon:
-            return  
+        
+        greske = []
+
+        if len(ime) < 3:
+            greske.append("Ime mora imati najmanje 3 znaka.")
+
+        if not email.lower().endswith("@gmail.com"):
+            greske.append("Email mora biti Gmail adresa (npr. korisnik@gmail.com).")
+
+        if len(telefon) < 9 or len(telefon) > 10:
+            greske.append("Broj telefona mora imati najmanje 9 i najviše 10 znakova.")
+
+        
+        if greske:
+            for g in greske:
+                print(g)
+            return
+        
 
         kontakt = Kontakt(ime, email, telefon)
         self.kontakti.append(kontakt)
@@ -89,28 +99,28 @@ class ImenikApp:
 
     def spremi_kontakte(self):
         with open("kontakti.csv", "w", newline="", encoding="utf-8") as f:
-            writer=csv.writer(f)
+            writer = csv.writer(f)
             for k in self.kontakti:
                 writer.writerow([k.ime, k.email, k.telefon])
 
     def ucitaj_kontakte(self):
-        self.kontakti=[]
+        self.kontakti = []
         if not os.path.exists("kontakti.csv"):
-            return  
+            return
 
         try:
             with open("kontakti.csv", "r", encoding="utf-8") as f:
-                reader=csv.reader(f)
+                reader = csv.reader(f)
                 for row in reader:
                     if len(row) == 3:
-                        ime, email, telefon=row
+                        ime, email, telefon = row
                         self.kontakti.append(Kontakt(ime, email, telefon))
             self.osvjezi_listbox()
         except Exception:
             pass
 
     def obrisi_kontakt(self):
-        selekcija=self.listbox.curselection()
+        selekcija = self.listbox.curselection()
         if not selekcija:
             return
         indeks = selekcija[0]
@@ -118,9 +128,7 @@ class ImenikApp:
         self.osvjezi_listbox()
 
 
-
 if __name__ == "__main__":
-    root=tk.Tk()
-    app=ImenikApp(root)
+    root = tk.Tk()
+    app = ImenikApp(root)
     root.mainloop()
-
